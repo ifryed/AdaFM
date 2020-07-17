@@ -1,2 +1,19 @@
 
 .idea/
+/datasets/noisy15/
+/datasets/noisy50/
+/datasets/CBSD68-dataset-master/
+
+*.pyc
+
+datasets/DIV2K/DIV2K_valid_HR_sub/0892_s025.png
+
+*.png
+
+datasets/noisy15.lmdb/
+
+datasets/
+
+tb_logger/
+
+experiments/
