@@ -17,3 +17,7 @@ datasets/
 tb_logger/
 
 experiments/
+
+*.log
+
+results/

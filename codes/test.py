@@ -3,6 +3,7 @@ import logging
 import time
 import argparse
 from collections import OrderedDict
+from multiprocessing.spawn import freeze_support
 
 import options.options as option
 import utils.util as util

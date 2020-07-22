@@ -1,6 +1,10 @@
 from collections import OrderedDict
 import functools
 import torch.nn as nn
+import torch
+import torch.nn.functional as F
+import numpy as np
+
 
 ####################
 # Basic blocks
@@ -60,7 +64,7 @@ def get_valid_padding(kernel_size, dilation):
 
 
 class ShortcutBlock(nn.Module):
-    #Elementwise sum the output of a submodule to its input
+    # Elementwise sum the output of a submodule to its input
     def __init__(self, submodule):
         super(ShortcutBlock, self).__init__()
         self.sub = submodule
@@ -102,7 +106,7 @@ def conv_block(in_nc, out_nc, kernel_size, stride=1, dilation=1, groups=1, bias=
     padding = padding if pad_type == 'zero' else 0
 
     c = nn.Conv2d(in_nc, out_nc, kernel_size=kernel_size, stride=stride, padding=padding, \
-            dilation=dilation, bias=bias, groups=groups)
+                  dilation=dilation, bias=bias, groups=groups)
     a = act(act_type) if act_type else None
     n = norm_layer(out_nc) if norm_layer else None
     return sequential(p, c, n, a)
@@ -119,13 +123,13 @@ class ResNetBlock(nn.Module):
     '''
 
     def __init__(self, in_nc, mid_nc, out_nc, kernel_size=3, stride=1, dilation=1, groups=1, \
-            bias=True, pad_type='zero', norm_layer=None, act_type='relu', res_scale=1):
+                 bias=True, pad_type='zero', norm_layer=None, act_type='relu', res_scale=1):
         super(ResNetBlock, self).__init__()
         conv0 = conv_block(in_nc, mid_nc, kernel_size, stride, dilation, groups, bias, pad_type, \
-            norm_layer, act_type)
+                           norm_layer, act_type)
         act_type = None
         conv1 = conv_block(mid_nc, out_nc, kernel_size, stride, dilation, groups, bias, pad_type, \
-            norm_layer, act_type)
+                           norm_layer, act_type)
         self.res = sequential(conv0, conv1)
         self.res_scale = res_scale
 
@@ -139,16 +143,21 @@ class ResNetBlock(nn.Module):
 ####################
 
 class AdaptiveFM(nn.Module):
-  
-    def __init__(self, in_channel, kernel_size):
 
+    def __init__(self, in_channel, kernel_size):
         super(AdaptiveFM, self).__init__()
         padding = get_valid_padding(kernel_size, 1)
-        self.transformer = nn.Conv2d(in_channel, in_channel, kernel_size,
-                                     padding=padding, groups=in_channel)
+        self.transformer1 = nn.Conv2d(in_channel, in_channel, kernel_size,
+                                      padding=padding, groups=in_channel)
+        self.transformer2 = nn.Conv2d(in_channel, in_channel, kernel_size,
+                                      padding=padding, groups=in_channel)
+        self.mask = None
 
     def forward(self, x):
-        return self.transformer(x) + x
+        s_1, s_2 = np.array(x.shape)[-2:]
+        mask = F.interpolate(self.mask, (s_1, s_2))
+
+        return x + self.transformer1(x) * mask + (1 - mask) * self.transformer2(x)
 
 
 class Basic(nn.Module):
@@ -167,14 +176,14 @@ class Basic(nn.Module):
 
 
 def pixelshuffle_block(in_nc, out_nc, upscale_factor=2, kernel_size=3, stride=1, bias=True, \
-                        pad_type='zero', norm_layer=None, act_type='relu'):
+                       pad_type='zero', norm_layer=None, act_type='relu'):
     '''
     Pixel shuffle layer
     (Real-Time Single Image and Video Super-Resolution Using an Efficient Sub-Pixel Convolutional
     Neural Network, CVPR17)
     '''
     conv = conv_block(in_nc, out_nc * (upscale_factor ** 2), kernel_size, stride, bias=bias, \
-                        pad_type=pad_type, norm_layer=None, act_type=None)
+                      pad_type=pad_type, norm_layer=None, act_type=None)
     pixel_shuffle = nn.PixelShuffle(upscale_factor)
 
     n = norm_layer(out_nc) if norm_layer else None
@@ -183,10 +192,10 @@ def pixelshuffle_block(in_nc, out_nc, upscale_factor=2, kernel_size=3, stride=1,
 
 
 def upconv_blcok(in_nc, out_nc, upscale_factor=2, kernel_size=3, stride=1, bias=True, \
-                pad_type='zero', norm_layer=None, act_type='relu', mode='nearest'):
+                 pad_type='zero', norm_layer=None, act_type='relu', mode='nearest'):
     # Up conv
     # described in https://distill.pub/2016/deconv-checkerboard/
     upsample = nn.Upsample(scale_factor=upscale_factor, mode=mode)
     conv = conv_block(in_nc, out_nc, kernel_size, stride, bias=bias, \
-                        pad_type=pad_type, norm_layer=norm_layer, act_type=act_type)
+                      pad_type=pad_type, norm_layer=norm_layer, act_type=act_type)
     return sequential(upsample, conv)
