@@ -1,6 +1,6 @@
 
 {
-  "name": "debug_001_basicmodel_noise15_DIV2K"  // !!! please remove "debug_" during training
+  "name": "001_basicmodel_noise15_DIV2K"  // !!! please remove "debug_" during training
   , "use_tb_logger": true  // use tensorboard
   , "model":"sr"
   , "finetune_norm": false  // whether finetune the adafm layers
@@ -11,8 +11,8 @@
     "train": {
       "name": "DIV2K"
       , "mode": "LRHR"
-      , "dataroot_HR": "../datasets/DIV2K800/DIV2K800_sub" // path for HR images
-      , "dataroot_LR": "../datasets/DIV2K800/DIV2K800_sub_noise15" // path for LR images
+      , "dataroot_HR": "../datasets/CBSD68-dataset-master/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/noisy15/" // path for LR images
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
@@ -24,8 +24,8 @@
     , "val": {
       "name": "val_CBSD68"
       , "mode": "LRHR"
-      , "dataroot_HR": "../datasets/val_CBSD68/CBSD68" // path for HR images
-      , "dataroot_LR": "../datasets/val_CBSD68/CBSD68_noise15" // path for LR images
+      , "dataroot_HR":  "../datasets/CBSD68-dataset-master/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR":  "../datasets/noisy15/" // path for LR images
     }
   }
 
