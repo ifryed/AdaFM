@@ -32,6 +32,8 @@ def insertAlphaValue(model: list, mask: np.ndarray):
 # options
 parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+parser.add_argument('-base_folder', type=str,required=False, default='../dataset/')
+base_folder = parser.parse_args().base_folder
 opt = option.parse(parser.parse_args().opt, is_train=False)
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
 opt = option.dict_to_nonedict(opt)
@@ -69,8 +71,8 @@ mask = cv2.imread('../soilder_mask.png', cv2.IMREAD_GRAYSCALE) / 255.0
 
 max_psnr = 0
 max_vals = ''
-INPUT_FLD = '../datasets/CBSD68/'
-GT_FLD = '../datasets/CBSD68/original_png/'
+INPUT_FLD = base_folder + '/CBSD68/'
+GT_FLD = base_folder + '/CBSD68/original_png/'
 noisy_flds = glob.glob(INPUT_FLD + 'noisy*')
 
 for test_loader in test_loaders:
