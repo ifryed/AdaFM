@@ -3,6 +3,19 @@ from collections import OrderedDict
 from data.util import bgr2ycbcr
 import utils.util as util
 
+def get_psnr_ssim(sr_img,gt_img, crop_size):
+    gt_img = gt_img / 255.
+    sr_img = sr_img / 255.
+
+    if crop_size > 0:
+        sr_img = sr_img[crop_size:-crop_size, crop_size:-crop_size, :]
+        gt_img = gt_img[crop_size:-crop_size, crop_size:-crop_size, :]
+    gt_h, gt_w = gt_img.shape[:2]
+    sr_img = sr_img[:gt_h, :gt_w]
+
+    psnr = util.calculate_psnr(sr_img * 255, gt_img * 255)
+    ssim = util.calculate_ssim(sr_img * 255, gt_img * 255)
+    return psnr,ssim
 
 class TrialStats():
     def __init__(self, logger, opt, test_name):
@@ -70,6 +83,3 @@ class TrialStats():
         print()
         print('Max:', self.max_psnr)
         print('Vals:', self.max_vals)
-        if save:
-            with open('res.txt', 'w') as o_file:
-                o_file.write("Image:{}, Max PSNR: {:.5f}".format(self.max_vals, self.max_psnr))

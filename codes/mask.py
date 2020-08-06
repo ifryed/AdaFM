@@ -16,7 +16,7 @@ import TextureFilter as txtF
 from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
 from models import create_model
-from utils.metrics import TrialStats
+from utils.metrics import TrialStats,get_psnr_ssim
 
 
 def insertAlphaValue(model: list, mask: np.ndarray):
@@ -35,7 +35,7 @@ parser.add_argument('-opt', type=str, required=True, help='Path to options JSON 
 parser.add_argument('-base_folder', type=str,required=False, default='../dataset/')
 base_folder = parser.parse_args().base_folder
 opt = option.parse(parser.parse_args().opt, is_train=False)
-util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
+# util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
 opt = option.dict_to_nonedict(opt)
 
 # util.setup_logger(None, opt['path']['log'], 'test.log', level=logging.INFO, screen=True)
@@ -64,16 +64,17 @@ for i in model_dict.keys():
 
 model_dict = collections.OrderedDict(c_dict)
 
-img = cv2.cvtColor(cv2.imread('../soilder.png'), cv2.COLOR_BGR2RGB)
-gt_img = cv2.imread('../gt_soilder.png')
-mask = cv2.imread('../soilder_mask.png', cv2.IMREAD_GRAYSCALE) / 255.0
+# img = cv2.cvtColor(cv2.imread('../soilder.png'), cv2.COLOR_BGR2RGB)
+# gt_img = cv2.imread('../gt_soilder.png')
+# mask = cv2.imread('../soilder_mask.png', cv2.IMREAD_GRAYSCALE) / 255.0
 # mask = np.ones_like(mask,dtype=np.float32)
 
 max_psnr = 0
 max_vals = ''
 INPUT_FLD = base_folder + '/CBSD68/'
 GT_FLD = base_folder + '/CBSD68/original_png/'
-noisy_flds = glob.glob(INPUT_FLD + 'noisy*')
+exp_name = 'full_grid_canny_sigma'
+noisy_flds = glob.glob(INPUT_FLD + 'noisy50')
 
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
@@ -82,10 +83,10 @@ for test_loader in test_loaders:
     util.mkdir(dataset_dir)
     need_HR = False if test_loader.dataset.opt['dataroot_HR'] is None else True
 
-    # My Town!!!
-    t_stats = TrialStats(logger, opt, 'noisy_50')
+    # My code
+    t_stats = TrialStats(logger, opt, exp_name)
     for noisy_input in noisy_flds:
-        noise_base_fld = '../results/' + noisy_input[noisy_input.rfind('noisy'):]
+        noise_base_fld = '../results/' + exp_name
         os.makedirs(noise_base_fld, exist_ok=True)
         for image_path in os.listdir(noisy_input):
             # img_o = cv2.imread('../soilder.png')
@@ -96,14 +97,25 @@ for test_loader in test_loaders:
             img = np.transpose(img, (3, 2, 0, 1))
             data = {'LR': torch.from_numpy(img)}
 
-            # for coef_fg, coef_bg in itertools.product(np.arange(0.0, 1.01, stride), np.arange(0.0, 1.01, stride)):
-            for coef_fg, coef_bg in itertools.product(np.arange(0.4, 0.61, stride), np.arange(0.4, 0.61, stride)):
+            best_img = None
+            best_psnr = -1
+            for coef_fg, coef_bg, canny_sigma in itertools.product(
+                    np.arange(0, 1.01, stride),
+                    np.arange(0, 1.01, stride),
+                    np.arange(0, 30, 5)):
+            # for coef_fg in np.arange(0, 1.01, stride):
+            #     coef_bg = coef_fg
+            # for coef_fg, coef_bg in itertools.product(np.arange(0.4, 0.61, stride), np.arange(0.4, 0.61, stride)):
+            #     if coef_fg == coef_bg:
+            #         continue
                 print('setting coef to {:.2f}x{:.2f}'.format(coef_fg, coef_bg))
 
                 interp_dict = model_dict.copy()
                 net = list(model.netG.module.model._modules.values())
                 # mask = create_mask(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
-                mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
+                # mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
+                mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
+                # mask = np.ones_like(mask)
                 insertAlphaValue(net, mask)
                 for k, v in model_dict.items():
                     if k.find('transformer1') >= 0:
@@ -128,16 +140,24 @@ for test_loader in test_loaders:
 
                 sr_img = util.tensor2img(visuals['SR'])  # uint8
 
-                # save images
-                img_part_name = '_coef_{:.2f}_{:.2f}.png'.format(coef_fg, coef_bg)
-                suffix = opt['suffix']
-                if suffix:
-                    save_img_path = os.path.join(noise_base_fld, img_name + suffix + img_part_name)
-                else:
-                    save_img_path = os.path.join(noise_base_fld, img_name + img_part_name)
-                util.save_img(sr_img, save_img_path)
-                util.save_img(mask * 255, save_img_path[:-4] + '_mask.png')
+                # Picking the best
+                tmp_psnr = get_psnr_ssim(sr_img,gt_img,opt['crop_size'])[0]
+                if tmp_psnr > best_psnr:
+                    best_psnr = tmp_psnr
+                    best_img = sr_img
+                    best_c_fg,best_c_bg = coef_fg, coef_bg
+                    print('\t\tBest One:{}'.format(best_psnr))
 
-                t_stats.cal_psnr_ssim(img_name, sr_img, gt_img, coef_fg, coef_bg)
+            # save images
+            img_part_name = '_coef_{:.2f}_{:.2f}.png'.format(best_c_fg,best_c_bg)
+            suffix = opt['suffix']
+            if suffix:
+                save_img_path = os.path.join(noise_base_fld, img_name + suffix + img_part_name)
+            else:
+                save_img_path = os.path.join(noise_base_fld, img_name + img_part_name)
+            util.save_img(best_img, save_img_path)
+            util.save_img(mask * 255, save_img_path[:-4] + '_mask.png')
 
-    t_stats.final_report(True)
+            t_stats.cal_psnr_ssim(img_name, best_img, gt_img, best_c_fg, best_c_bg)
+
+    t_stats.final_report(False)

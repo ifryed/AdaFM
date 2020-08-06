@@ -19,8 +19,9 @@ def create_mask(img, var, w_size=5):
     return mask
 
 
-def create_mask_canny(img, w_size=5):
-    edge = cv2.Canny((255 * img).astype(np.uint8), 50, 80, apertureSize=3) / 255
+def create_mask_canny(img, sigma=4, w_size=5):
+    img_g = cv2.GaussianBlur(img, ksize=(5, 5), sigmaX=sigma)
+    edge = cv2.Canny((255 * img_g).astype(np.uint8), 50, 80, apertureSize=3) / 255
     mask = np.zeros_like(img)
 
     kernel = np.ones((w_size, w_size))
