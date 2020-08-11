@@ -17,6 +17,7 @@ from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
 from models import create_model
 from utils.metrics import TrialStats,get_psnr_ssim
+import matplotlib.pyplot as plt
 
 
 def insertAlphaValue(model: list, mask: np.ndarray):
@@ -73,8 +74,8 @@ max_psnr = 0
 max_vals = ''
 INPUT_FLD = base_folder + '/CBSD68/'
 GT_FLD = base_folder + '/CBSD68/original_png/'
-exp_name = 'full_grid_canny_sigma'
-noisy_flds = glob.glob(INPUT_FLD + 'noisy50')
+exp_name = 'full_grid_segment'
+noisy_flds = glob.glob(INPUT_FLD + 'noisy5')
 
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
@@ -114,7 +115,9 @@ for test_loader in test_loaders:
                 net = list(model.netG.module.model._modules.values())
                 # mask = create_mask(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
                 # mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
-                mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
+                # mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
+                mask = txtF.create_mask_segnet(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB))
+
                 # mask = np.ones_like(mask)
                 insertAlphaValue(net, mask)
                 for k, v in model_dict.items():
