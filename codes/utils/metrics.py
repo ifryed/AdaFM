@@ -82,4 +82,3 @@ class TrialStats():
                              .format(ave_psnr_y, ave_ssim_y))
         print()
         print('Max:', self.max_psnr)
-        print('Vals:', self.max_vals)
