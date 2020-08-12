@@ -75,7 +75,7 @@ max_vals = ''
 INPUT_FLD = base_folder + '/CBSD68/'
 GT_FLD = base_folder + '/CBSD68/original_png/'
 exp_name = 'full_grid_PG_kmeans'
-noisy_flds = glob.glob(INPUT_FLD + 'noisy5')
+noisy_flds = glob.glob(INPUT_FLD + 'noisy50')
 
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
