@@ -82,18 +82,21 @@ def create_mask_segnet(img):
     return mask
 
 
-def create_mask_patch_group(img: np.ndarray, w_size: int = 10) -> np.ndarray:
+def create_mask_patch_group(img: np.ndarray, w_size: int = 10, stride: int = 1) -> np.ndarray:
     h, w = img.shape[:2]
     h = (np.floor(h / w_size) * w_size).astype(int)
     w = (np.floor(w / w_size) * w_size).astype(int)
     img_c = cv2.resize(img, (w, h))
+
+    # img_c = cv2.dct(img_c)
     patches = [img_c[ys:ys + w_size, xs:xs + w_size] for ys, xs in itertools.product(
-        np.arange(0, h, w_size),
-        np.arange(0, w, w_size))]
+        np.arange(0, h - w_size, stride),
+        np.arange(0, w - w_size, stride))]
+    nh, nw = len(np.arange(0, h - w_size, stride)), len(np.arange(0, w - w_size, stride))
     patches = np.array(patches)
     patches_v = patches.reshape(-1, w_size ** 2)
 
-    kmeans = KMeans(n_clusters=2, random_state=0).fit(patches_v)
-    l_mat = kmeans.labels_.reshape((h // w_size, w // w_size))
+    kmeans = KMeans(n_clusters=2).fit(patches_v)
+    l_mat = kmeans.labels_.reshape((nh, nw))
 
-    return cv2.resize(l_mat.astype(np.float64), (img.shape[1::-1])).astype(int)
+    return (cv2.resize(l_mat.astype(np.float64), (img.shape[1::-1])) > 0).astype(int)

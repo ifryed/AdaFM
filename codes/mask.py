@@ -16,7 +16,7 @@ import TextureFilter as txtF
 from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
 from models import create_model
-from utils.metrics import TrialStats,get_psnr_ssim
+from utils.metrics import TrialStats, get_psnr_ssim
 import matplotlib.pyplot as plt
 
 
@@ -33,7 +33,7 @@ def insertAlphaValue(model: list, mask: np.ndarray):
 # options
 parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
-parser.add_argument('-base_folder', type=str,required=False, default='../dataset/')
+parser.add_argument('-base_folder', type=str, required=False, default='../dataset/')
 base_folder = parser.parse_args().base_folder
 opt = option.parse(parser.parse_args().opt, is_train=False)
 # util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
@@ -100,24 +100,26 @@ for test_loader in test_loaders:
 
             best_img = None
             best_psnr = -1
-            for coef_fg, coef_bg, canny_sigma in itertools.product(
+
+            # Create Mask
+            # mask = create_mask(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
+            # mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
+            # mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
+            # mask = txtF.create_mask_segnet(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB))
+            mask = txtF.create_mask_patch_group(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY), 10, 1)
+
+            for coef_fg, coef_bg in itertools.product(
                     np.arange(0, 1.01, stride),
-                    np.arange(0, 1.01, stride),
-                    np.arange(0, 30, 5)):
-            # for coef_fg in np.arange(0, 1.01, stride):
-            #     coef_bg = coef_fg
-            # for coef_fg, coef_bg in itertools.product(np.arange(0.4, 0.61, stride), np.arange(0.4, 0.61, stride)):
-            #     if coef_fg == coef_bg:
-            #         continue
+                    np.arange(0, 1.01, stride)):
+                # for coef_fg in np.arange(0, 1.01, stride):
+                #     coef_bg = coef_fg
+                # for coef_fg, coef_bg in itertools.product(np.arange(0.4, 0.61, stride), np.arange(0.4, 0.61, stride)):
+                #     if coef_fg == coef_bg:
+                #         continue
                 print('setting coef to {:.2f}x{:.2f}'.format(coef_fg, coef_bg))
 
                 interp_dict = model_dict.copy()
                 net = list(model.netG.module.model._modules.values())
-                # mask = create_mask(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
-                # mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
-                # mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
-                # mask = txtF.create_mask_segnet(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB))
-                mask = txtF.create_mask_patch_group(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY),5)
 
                 # mask = np.ones_like(mask)
                 insertAlphaValue(net, mask)
@@ -145,15 +147,15 @@ for test_loader in test_loaders:
                 sr_img = util.tensor2img(visuals['SR'])  # uint8
 
                 # Picking the best
-                tmp_psnr = get_psnr_ssim(sr_img,gt_img,opt['crop_size'])[0]
+                tmp_psnr = get_psnr_ssim(sr_img, gt_img, opt['crop_size'])[0]
                 if tmp_psnr > best_psnr:
                     best_psnr = tmp_psnr
                     best_img = sr_img
-                    best_c_fg,best_c_bg = coef_fg, coef_bg
+                    best_c_fg, best_c_bg = coef_fg, coef_bg
                     print('\t\tBest One:{}'.format(best_psnr))
 
             # save images
-            img_part_name = '_coef_{:.2f}_{:.2f}.png'.format(best_c_fg,best_c_bg)
+            img_part_name = '_coef_{:.2f}_{:.2f}.png'.format(best_c_fg, best_c_bg)
             suffix = opt['suffix']
             if suffix:
                 save_img_path = os.path.join(noise_base_fld, img_name + suffix + img_part_name)
