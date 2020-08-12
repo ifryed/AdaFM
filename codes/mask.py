@@ -116,7 +116,8 @@ for test_loader in test_loaders:
                 # mask = create_mask(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
                 # mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
                 # mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
-                mask = txtF.create_mask_segnet(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB))
+                # mask = txtF.create_mask_segnet(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB))
+                mask = txtF.create_mask_patch_group(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB),5)
 
                 # mask = np.ones_like(mask)
                 insertAlphaValue(net, mask)

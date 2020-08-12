@@ -1,3 +1,5 @@
+import itertools
+
 import cv2
 import numpy as np
 from cv2 import GaussianBlur
@@ -5,6 +7,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
 
 def create_mask(img, var, w_size=5):
@@ -77,3 +80,20 @@ def create_mask_segnet(img):
 
     mask = (output_predictions.cpu().numpy() > 0).astype(np.float64)
     return mask
+
+
+def create_mask_patch_group(img: np.ndarray, w_size: int = 10) -> np.ndarray:
+    h, w = img.shape[:2]
+    h = (np.floor(h / w_size) * w_size).astype(int)
+    w = (np.floor(w / w_size) * w_size).astype(int)
+    img_c = cv2.resize(img, (w, h))
+    patches = [img_c[ys:ys + w_size, xs:xs + w_size] for ys, xs in itertools.product(
+        np.arange(0, h, w_size),
+        np.arange(0, w, w_size))]
+    patches = np.array(patches)
+    patches_v = patches.reshape(-1, w_size ** 2)
+
+    kmeans = KMeans(n_clusters=2, random_state=0).fit(patches_v)
+    l_mat = kmeans.labels_.reshape((h // w_size, w // w_size))
+
+    return cv2.resize(l_mat.astype(np.float64), (img.shape[1::-1])).astype(int)
