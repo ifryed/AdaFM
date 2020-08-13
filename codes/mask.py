@@ -106,7 +106,8 @@ for test_loader in test_loaders:
             # mask = txtF.create_mask_laplacian(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255)
             # mask = txtF.create_mask_canny(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY) / 255, canny_sigma)
             # mask = txtF.create_mask_segnet(cv2.cvtColor(img_o, cv2.COLOR_BGR2RGB))
-            mask = txtF.create_mask_patch_group(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY), 10, 1)
+            # mask = txtF.create_mask_patch_group(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY), 10, 1)
+            mask = txtF.create_mask_patch_group_DCT(cv2.cvtColor(img_o, cv2.COLOR_BGR2GRAY), 10, 1)
 
             for coef_fg, coef_bg in itertools.product(
                     np.arange(0, 1.01, stride),
