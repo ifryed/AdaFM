@@ -101,6 +101,10 @@ def create_mask_patch_group(img: np.ndarray, w_size: int = 10, stride: int = 1) 
     return (cv2.resize(l_mat.astype(np.float64), (img.shape[1::-1])) > 0).astype(int)
 
 
+def dct_process(img):
+    return cv2.dct(img)
+
+
 def create_mask_patch_group_DCT(img: np.ndarray, w_size: int = 10, stride: int = 1) -> np.ndarray:
     h, w = img.shape[:2]
     h = (np.floor(h / w_size) * w_size).astype(int)
@@ -108,7 +112,7 @@ def create_mask_patch_group_DCT(img: np.ndarray, w_size: int = 10, stride: int =
     img_c = cv2.resize(img, (w, h))
     w_size = int((w_size // 2) * 2)
 
-    dct_process = lambda img: cv2.dct(img / img.max())
+    img = cv2.GaussianBlur(img, (5, 5), -1)
     patches = [dct_process(img_c[ys:ys + w_size, xs:xs + w_size]) for ys, xs in itertools.product(
         np.arange(0, h - w_size, stride),
         np.arange(0, w - w_size, stride))]
@@ -120,3 +124,4 @@ def create_mask_patch_group_DCT(img: np.ndarray, w_size: int = 10, stride: int =
     l_mat = kmeans.labels_.reshape((nh, nw))
 
     return (cv2.resize(l_mat.astype(np.float64), (img.shape[1::-1])) > 0).astype(int)
+
