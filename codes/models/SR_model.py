@@ -4,9 +4,11 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 from torch.optim import lr_scheduler
+import pytorch_ssim
 
 import models.networks as networks
 from .base_model import BaseModel
+
 logger = logging.getLogger('base')
 
 
@@ -28,6 +30,8 @@ class SRModel(BaseModel):
                 self.cri_pix = nn.L1Loss().to(self.device)
             elif loss_type == 'l2':
                 self.cri_pix = nn.MSELoss().to(self.device)
+            elif loss_type == 'ssim':
+                self.cri_pix = pytorch_ssim.SSIM(device=self.device)
             else:
                 raise NotImplementedError('Loss type [{:s}] is not recognized.'.format(loss_type))
             self.l_pix_w = train_opt['pixel_weight']
@@ -56,7 +60,7 @@ class SRModel(BaseModel):
             if train_opt['lr_scheme'] == 'MultiStepLR':
                 for optimizer in self.optimizers:
                     self.schedulers.append(lr_scheduler.MultiStepLR(optimizer, \
-                        train_opt['lr_steps'], train_opt['lr_gamma']))
+                                                                    train_opt['lr_steps'], train_opt['lr_gamma']))
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
 
@@ -73,6 +77,16 @@ class SRModel(BaseModel):
         self.optimizer_G.zero_grad()
         self.fake_H = self.netG(self.var_L)
         l_pix = self.l_pix_w * self.cri_pix(self.fake_H, self.real_H)
+        l_pix.backward()
+        self.optimizer_G.step()
+
+        # set log
+        self.log_dict['l_pix'] = l_pix.item()
+
+    def optimize_parameters_SSIM(self, step):
+        self.optimizer_G.zero_grad()
+        self.fake_H = self.netG(self.var_L)
+        l_pix = self.l_pix_w * (-self.cri_pix(self.fake_H, self.real_H))
         l_pix.backward()
         self.optimizer_G.step()
 

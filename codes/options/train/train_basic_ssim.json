@@ -11,7 +11,7 @@
     "train": {
       "name": "DIV2K"
       , "mode": "LRHR"
-      , "dataroot_HR": "../datasets/CBSD68-dataset-master/CBSD68/original_png/" // path for HR images
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
       , "dataroot_LR": "../datasets/noisy15/" // path for LR images
       , "subset_file": null
       , "use_shuffle": true
@@ -24,7 +24,7 @@
     , "val": {
       "name": "val_CBSD68"
       , "mode": "LRHR"
-      , "dataroot_HR":  "../datasets/CBSD68-dataset-master/CBSD68/original_png/" // path for HR images
+      , "dataroot_HR":  "../datasets/CBSD68/original_png/" // path for HR images
       , "dataroot_LR":  "../datasets/noisy15/" // path for LR images
     }
   }
@@ -51,7 +51,7 @@
     , "lr_steps": [500000] // at which steps, decay the learining rate
     , "lr_gamma": 0.1 // learning rate decreases by a factor of 0.1
 
-    , "pixel_criterion": "l1" // l1 loss
+    , "pixel_criterion": "ssim" // l1 loss
     , "pixel_weight": 1.0 // the weight of l1 loss
     , "val_freq": 5e3 // how often do you want to do validation
 
