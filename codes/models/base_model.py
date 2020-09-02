@@ -63,16 +63,17 @@ class BaseModel():
             network = network.module
 
         model_dict = torch.load(load_path)
-        c_dict = dict()
-        for i in model_dict.keys():
-            if 'transformer' in i:
-                c_dict[i.replace('transformer', 'transformer1')] = model_dict[i]
-                c_dict[i.replace('transformer', 'transformer2')] = model_dict[i]
-            else:
-                c_dict[i] = model_dict[i]
-
-        c_dict = collections.OrderedDict(c_dict)
-        network.load_state_dict(c_dict, strict=strict)
+        # c_dict = dict()
+        # for i in model_dict.keys():
+        #     if 'transformer' in i:
+        #         c_dict[i.replace('transformer', 'transformer1')] = model_dict[i]
+        #         c_dict[i.replace('transformer', 'transformer2')] = model_dict[i]
+        #     else:
+        #         c_dict[i] = model_dict[i]
+        #
+        # c_dict = collections.OrderedDict(c_dict)
+        # network.load_state_dict(c_dict, strict=strict)
+        network.load_state_dict(model_dict, strict=strict)
 
     def save_training_state(self, epoch, iter_step):
         '''Saves training state during training, which will be used for resuming'''
