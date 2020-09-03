@@ -105,7 +105,7 @@ def dct_process(img):
     return cv2.dct(img)
 
 
-def create_mask_patch_group_DCT(img: np.ndarray, w_size: int = 10, stride: int = 1) -> np.ndarray:
+def create_mask_patch_group_DCT(img: np.ndarray, w_size: int = 8, stride: int = 1) -> np.ndarray:
     h, w = img.shape[:2]
     h = (np.floor(h / w_size) * w_size).astype(int)
     w = (np.floor(w / w_size) * w_size).astype(int)
