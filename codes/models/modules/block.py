@@ -147,17 +147,20 @@ class AdaptiveFM(nn.Module):
     def __init__(self, in_channel, kernel_size):
         super(AdaptiveFM, self).__init__()
         padding = get_valid_padding(kernel_size, 1)
-        self.transformer1 = nn.Conv2d(in_channel, in_channel, kernel_size,
+        self.transformer = nn.Conv2d(in_channel, in_channel, kernel_size,
                                       padding=padding, groups=in_channel)
-        self.transformer2 = nn.Conv2d(in_channel, in_channel, kernel_size,
-                                      padding=padding, groups=in_channel)
+        # self.transformer1 = nn.Conv2d(in_channel, in_channel, kernel_size,
+        #                               padding=padding, groups=in_channel)
+        # self.transformer2 = nn.Conv2d(in_channel, in_channel, kernel_size,
+        #                               padding=padding, groups=in_channel)
         self.mask = None
 
     def forward(self, x):
-        s_1, s_2 = np.array(x.shape)[-2:]
-        mask = F.interpolate(self.mask, (s_1, s_2))
-
-        return x + self.transformer1(x) * mask + (1 - mask) * self.transformer2(x)
+        # s_1, s_2 = np.array(x.shape)[-2:]
+        # mask = F.interpolate(self.mask, (s_1, s_2))
+        #
+        # return x + self.transformer1(x) * mask + (1 - mask) * self.transformer2(x)
+        return x + self.transformer(x)
 
 
 class Basic(nn.Module):
