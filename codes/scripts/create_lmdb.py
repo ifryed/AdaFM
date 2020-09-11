@@ -26,6 +26,7 @@ print('Read images...')
 pbar = ProgressBar(len(img_list))
 for i, v in enumerate(img_list):
     pbar.update('Read {}'.format(v))
+    print(v)
     img = cv2.imread(v, cv2.IMREAD_UNCHANGED)
     dataset.append(img)
     data_size += img.nbytes

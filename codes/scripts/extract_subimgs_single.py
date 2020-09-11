@@ -10,8 +10,8 @@ from utils.progress_bar import ProgressBar
 
 def main():
     """A multi-thread tool to crop sub imags."""
-    input_folder = '../../datasets/DIV2K800/DIV2K800'
-    save_folder = '../../datasets/DIV2K800/DIV2K800_sub'
+    input_folder = '../../datasets/DIV2K800_valid/'
+    save_folder = '../../datasets/DIV2K800_valid/DIV2K800_sub'
     n_thread = 20
     crop_sz = 480   # crop size
     step = 240  # crop stride
@@ -20,13 +20,9 @@ def main():
     # CV_IMWRITE_PNG_COMPRESSION from 0 to 9. A higher value means a smaller size and longer
     # compression time. If read raw images during training, use 0 for faster IO speed.
 
-    if not os.path.exists(save_folder):
-        os.makedirs(save_folder)
-        print('mkdir [{:s}] ...'.format(save_folder))
-    else:
-        print('Folder [{:s}] already exists. Exit...'.format(save_folder))
-        sys.exit(1)
-
+    os.makedirs(save_folder,exist_ok=True)
+    print('mkdir [{:s}] ...'.format(save_folder))
+    
     img_list = []
     for root, _, file_list in sorted(os.walk(input_folder)):
         path = [os.path.join(root, x) for x in file_list]  # assume only images in the input_folder
