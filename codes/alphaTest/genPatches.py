@@ -31,7 +31,7 @@ def selectRandomPatches(img: np.ndarray, img_gt: np.ndarray, patch_size: int, n_
 
 
 def main():
-    prefix = 'DCT'
+    prefix = 'Canny_gt'
     base_folder = '../../datasets/CBSD68'
     out_folder = '../../datasets/patches/' + prefix
     patch_size = 11
@@ -61,12 +61,13 @@ def main():
             img_gt_full_path = os.path.join(base_folder, 'original_png', img_path)
 
             img = cv2.imread(img_full_path)
-            img_canny = createCanny(img)
             img_gt = cv2.imread(img_gt_full_path)
+            img_canny = createCanny(img_gt)
 
             r_patches, r_patches_gt, r_patches_add_info = selectRandomPatches(img, img_gt, patch_size,
-                                                                              img_add=img,
-                                                                              img_add_fun=lambda x: preformDCT(x))
+                                                                              img_add=img_canny,
+                                                                              img_add_fun=lambda x: x.mean())
+                                                                              # img_add_fun=lambda x: preformDCT(x))
             rand_patches += r_patches
             rand_patches_add_info += r_patches_add_info
             rand_patches_gt += r_patches_gt
@@ -75,9 +76,9 @@ def main():
         rand_patches_add_info = np.array(rand_patches_add_info).reshape(len(rand_patches),-1)
         kmeans = KMeans(n_clusters=texture_type_num).fit(rand_patches_add_info)
         new_labels = kmeans.labels_.copy()
-        # cent_ord = np.argsort(kmeans.cluster_centers_.flatten())
-        # for i, cc in enumerate(cent_ord):
-        #     new_labels[kmeans.labels_ == cc] = i
+        cent_ord = np.argsort(kmeans.cluster_centers_.flatten())
+        for i, cc in enumerate(cent_ord):
+            new_labels[kmeans.labels_ == cc] = i
 
         for tex in range(texture_type_num):
             os.makedirs(os.path.join(out_folder, 'noisy', n_fld, 'text_{}'.format(tex)), exist_ok=True)

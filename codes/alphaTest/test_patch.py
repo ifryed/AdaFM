@@ -58,10 +58,10 @@ model_dict = torch.load(opt['path']['pretrain_model_G'])
 
 max_psnr = 0
 max_vals = ''
-prefix = 'DCT/'
+prefix = 'Canny_gt/'
 INPUT_FLD = base_folder + prefix + '/noisy/'
 GT_FLD = base_folder + prefix + '/gt/'
-exp_name = 'patch_test_dct'
+exp_name = 'patch_test_canny_gt'
 
 test_set_name = 'test_' + exp_name
 logger.info('\nModulating [{:s}]...'.format(test_set_name))

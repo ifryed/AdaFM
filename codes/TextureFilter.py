@@ -126,7 +126,6 @@ def create_mask_patch_group_DCT(img: np.ndarray, w_size: int = 8, stride: int = 
     return (cv2.resize(l_mat.astype(np.float64), (img.shape[1::-1])) > 0).astype(int)
 
 
-
 def patchHoM(grad, mag):
     HOM = np.histogram(mag, bins=8, range=(0, 1))[0]
     return HOM / mag.size

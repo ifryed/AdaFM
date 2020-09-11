@@ -21,3 +21,7 @@ experiments/
 *.log
 
 results/
+
+codes/alphaTest/.ipynb_checkpoints/
+
+shaia\@gilbserver-desktop/
