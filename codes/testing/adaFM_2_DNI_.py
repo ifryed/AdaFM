@@ -6,6 +6,9 @@ import numpy as np
 from collections import OrderedDict
 import torch
 
+import sys
+sys.path.append('../')
+
 import options.options as option
 import utils.util as util
 from data.util import bgr2ycbcr
