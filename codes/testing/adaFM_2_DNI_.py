@@ -7,6 +7,7 @@ from collections import OrderedDict
 import torch
 
 import sys
+
 sys.path.append('../')
 
 import options.options as option
@@ -49,7 +50,7 @@ for test_loader in test_loaders:
     for ns_lvl, p2s_lvl in itertools.product(
             np.arange(0, 1.01, stride),
             np.arange(0, 1.01, stride)):
-        print('setting coef to {:.2f}'.format(ns_lvl))
+        print('setting noise lvl:{:.2f}\tBlend alphs:{:.2f}'.format(ns_lvl, p2s_lvl))
 
         interp_dict_psnr = model_dict_psnr.copy()
         for k, v in model_dict_psnr.items():
