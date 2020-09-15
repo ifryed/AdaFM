@@ -18,7 +18,7 @@
   }
 
   , "path": {
-    "root": "../"
+    "root": "../../"
     , "pretrain_model_PSNR": "../../experiments/pretrained_models/noise15to75.pth"
     , "pretrain_model_SSIM": "../../experiments/001_adafmnet_noise75_DIV2K_ssim/models/latest_G.pth"
   }

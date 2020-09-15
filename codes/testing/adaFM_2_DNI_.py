@@ -58,11 +58,11 @@ for test_loader in test_loaders:
                 interp_dict_psnr[k] = v * ns_lvl
 
         interp_dict_ssim = model_dict_ssim.copy()
-        for k, v in model_dict_psnr.items():
+        for k, v in model_dict_ssim.items():
             if k.find('transformer') >= 0:
                 interp_dict_ssim[k] = v * ns_lvl
 
-        interp_dict_blend = model_dict_psnr.copy()
+        interp_dict_blend = dict()
         for k, v in model_dict_psnr.items():
             interp_dict_blend[k] = interp_dict_psnr[k] * p2s_lvl + (1 - p2s_lvl) * interp_dict_ssim[k]
         model.update(interp_dict_blend)
