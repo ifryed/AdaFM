@@ -35,7 +35,7 @@
   , "path": {
     "root": "../" // the path root for the current experiment
     // , "resume_state": "../experiments/debug_001_basicmodel_noise15_DIV2K/training_state/200.state"
-    , "pretrain_model_G": null // path for pretrained model
+    , "pretrain_model_G": "../experiments/n15psnr/models/latest_G.pth" // path for pretrained model
   }
 
   , "network_G": {
