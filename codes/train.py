@@ -99,7 +99,10 @@ def main():
 
             # training
             model.feed_data(train_data)
-            model.optimize_parameters(current_step)
+            if opt['train']['pixel_criterion'] == 'ssim':
+                model.optimize_parameters_SSIM(current_step)
+            else:
+                model.optimize_parameters(current_step)
 
             # log
             if current_step % opt['logger']['print_freq'] == 0:
