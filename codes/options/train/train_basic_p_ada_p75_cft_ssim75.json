@@ -10,8 +10,8 @@
     "train": {
       "name": "DIV2K"
       , "mode": "LRHR"
-      , "dataroot_HR": "../datasets/DIV2K800/DIV2K800_sub"
-      , "dataroot_LR": "../datasets/DIV2K800/DIV2K_train/noise_75" // path for LR images
+      , "dataroot_HR": "../datasets/DIV2K800_train/DIV2K800_sub"
+      , "dataroot_LR": "../datasets/DIV2K_train/noise_75" // path for LR images
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
