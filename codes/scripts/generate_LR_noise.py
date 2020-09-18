@@ -12,7 +12,11 @@ def main():
     for sigma in sigmas:
         output_fld = os.path.join(sys.argv[3], 'noise_{}'.format(sigma))
         os.makedirs(output_fld, exist_ok=True)
-        for img_p in [x for x in os.listdir(input_fld) if x.endswith('png')]:
+
+        imgs_path_list = [x for x in os.listdir(input_fld) if x.endswith('png')]
+        imgs_path_list.sort()
+
+        for img_p in imgs_path_list:
             print('\rSigma:{}, Img:{}'.format(sigma, img_p), end='')
 
             img = cv2.imread(os.path.join(input_fld, img_p)) / 255
