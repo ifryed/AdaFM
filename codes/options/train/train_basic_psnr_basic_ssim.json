@@ -1,6 +1,6 @@
 
 {
-  "name": "001_basicmodel_noise15_DIV2K"  // !!! please remove "debug_" during training
+  "name": "b_psnr_b_ssim"  // !!! please remove "debug_" during training
   , "use_tb_logger": true  // use tensorboard
   , "model":"sr"
   , "finetune_norm": false  // whether finetune the adafm layers
