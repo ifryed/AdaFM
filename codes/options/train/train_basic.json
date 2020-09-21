@@ -1,4 +1,3 @@
-
 {
   "name": "basicmodel_noise15_DIV2K"  // !!! please remove "debug_" during training
   , "use_tb_logger": true  // use tensorboard
