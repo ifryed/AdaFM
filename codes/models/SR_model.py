@@ -59,7 +59,7 @@ class SRModel(BaseModel):
             # schedulers
             if train_opt['lr_scheme'] == 'MultiStepLR':
                 for optimizer in self.optimizers:
-                    self.schedulers.append(lr_scheduler.MultiStepLR(optimizer, \
+                    self.schedulers.append(lr_scheduler.MultiStepLR(optimizer,
                                                                     train_opt['lr_steps'], train_opt['lr_gamma']))
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')

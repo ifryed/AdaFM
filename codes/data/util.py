@@ -6,7 +6,10 @@ import lmdb
 import cv2
 import logging
 
+import torch
+
 IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP']
+
 
 ####################
 # Files & IO
@@ -57,6 +60,13 @@ def get_image_paths(data_type, dataroot):
     return env, paths
 
 
+def get_kernel_paths(data_type, dataroot):
+    env, paths = None, None
+    if dataroot is not None:
+        paths = sorted([os.path.join(dataroot, x) for x in os.listdir(dataroot)])
+    return env, paths
+
+
 def _read_lmdb_img(env, path):
     with env.begin(write=False) as txn:
         buf = txn.get(path.encode('ascii'))
@@ -81,6 +91,22 @@ def read_img(env, path):
     if img.shape[2] > 3:
         img = img[:, :, :3]
     return img
+
+
+def read_model2img(model_path, round_to=1411788):
+    model_dict = torch.load(model_path)
+    weight_flatten = []
+    for k, v in model_dict.items():
+        weight_flatten += list(v.numpy().flatten())
+    weight_flatten = np.array(weight_flatten)
+
+    divider = np.sqrt(round_to / 3)
+    assert divider.is_integer()
+    divider = divider.astype(int)
+    ker_img = np.zeros(divider * divider * 3)
+    ker_img[:len(weight_flatten)] = weight_flatten
+    ker_img = ker_img.reshape((divider, divider, 3))
+    return ker_img
 
 
 ####################
