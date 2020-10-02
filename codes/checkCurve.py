@@ -34,7 +34,7 @@ model = create_model(opt)
 stride = opt['interpolate_stride'] if opt['interpolate_stride'] is not None else 0.1
 model_dict = torch.load(opt['path']['pretrain_model_G'])
 
-summ_log = open(os.os.path.join(opt['path']['results_root'], "summ.txt"), 'w')
+summ_log = open(os.path.join(opt['path']['results_root'], "summ.txt"), 'w')
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
     logger.info('\nModulating [{:s}]...'.format(test_set_name))
@@ -122,7 +122,7 @@ for test_loader in test_loaders:
     best_alpha_psnr = np.argmax(alpha_psnr) * 0.1
     best_alpha_ssim = np.argmax(alpha_ssim) * 0.1
 
-    summ_log.write('{}\tPSNR {}-{:.3f}\SSIM{}-{:.3f}'.format(test_set_name,
+    summ_log.write('{}\tPSNR {:.2f}-{:.3f}\tSSIM{:.2f}-{:.3f}\n'.format(test_set_name,
                                                              best_alpha_psnr, max(alpha_psnr),
                                                              best_alpha_ssim, max(alpha_ssim)))
     summ_log.flush()
