@@ -1,0 +1,63 @@
+{
+  "name": "curve_test_interpolate"
+  , "suffix": null
+  , "model": "sr"
+  , "crop_size": 0  // 0 for image restoration | upscale (x2,3,4) for SR
+  , "gpu_ids": [0]
+
+  , "interpolate_stride": 0.1 // 0.1, 0.05, 0.01, ... for modulation testing
+
+  , "datasets": {
+    "test_5": { // the 1st test dataset
+      "name": "sigma_5"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy5/" // path for LR images
+    },
+    "test_10": { // the 1st test dataset
+      "name": "sigma_10"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy10/" // path for LR images
+    },
+    "test_15": { // the 1st test dataset
+      "name": "sigma_15"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy15/" // path for LR images
+    },
+    "test_25": { // the 1st test dataset
+      "name": "sigma_5"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy25/" // path for LR images
+    },
+    "test_35": { // the 1st test dataset
+      "name": "sigma_5"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy35/" // path for LR images
+    },
+   "test_50": { // the 1st test dataset
+      "name": "sigma_5"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy50/" // path for LR images
+    }
+}
+
+  , "path": {
+    "root": "../"
+    , "pretrain_model_G": "../experiments/pretrained_models/noise15to75.pth"
+  }
+
+  , "network_G": {
+    "which_model_G": "adaptive_resnet"
+    , "norm_type": "adafm" // basic | adafm | null | instance | batch
+    , "nf": 64
+    , "nb": 16
+    , "in_nc": 3
+    , "out_nc": 3
+    , "adafm_ksize": 1 // 1 | 3 | 5 | 7
+  }
+}
