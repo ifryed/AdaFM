@@ -14,7 +14,7 @@ from models import create_model
 # options
 parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
-parser.add_argument('-ext', type=bool, required=False, default=False, action='store_true')
+parser.add_argument('-ext', required=False, default=False, action='store_true')
 check_ext = parser.parse_args().ext
 opt = option.parse(parser.parse_args().opt, is_train=False)
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
