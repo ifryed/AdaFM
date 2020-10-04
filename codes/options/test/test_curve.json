@@ -48,7 +48,7 @@
 
   , "path": {
     "root": "../"
-    , "pretrain_model_G": "../experiments/b_psnr_ada_psnr_50/models/latest_G.pth"
+    , "pretrain_model_G": "../experiments/pretrained_models/noise15to75.pth"
   }
 
   , "network_G": {
