@@ -9,7 +9,7 @@
 
   , "datasets": {
     "test_5": { // the 1st test dataset
-      "name": "sigma_5"
+      "name": "sigma_05"
       , "mode": "LRHR"
       , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
       , "dataroot_LR": "../datasets/CBSD68/noisy5/" // path for LR images
@@ -27,19 +27,19 @@
       , "dataroot_LR": "../datasets/CBSD68/noisy15/" // path for LR images
     },
     "test_25": { // the 1st test dataset
-      "name": "sigma_5"
+      "name": "sigma_25"
       , "mode": "LRHR"
       , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
       , "dataroot_LR": "../datasets/CBSD68/noisy25/" // path for LR images
     },
     "test_35": { // the 1st test dataset
-      "name": "sigma_5"
+      "name": "sigma_35"
       , "mode": "LRHR"
       , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
       , "dataroot_LR": "../datasets/CBSD68/noisy35/" // path for LR images
     },
    "test_50": { // the 1st test dataset
-      "name": "sigma_5"
+      "name": "sigma_50"
       , "mode": "LRHR"
       , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
       , "dataroot_LR": "../datasets/CBSD68/noisy50/" // path for LR images
@@ -48,7 +48,7 @@
 
   , "path": {
     "root": "../"
-    , "pretrain_model_G": "../experiments/pretrained_models/noise15to75.pth"
+    , "pretrain_model_G": "../experiments/b_psnr_ada_psnr_50/models/latest_G.pth"
   }
 
   , "network_G": {

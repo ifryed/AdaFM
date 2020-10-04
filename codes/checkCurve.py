@@ -14,6 +14,8 @@ from models import create_model
 # options
 parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+parser.add_argument('-ext', type=bool, required=False, default=False, action='store_true')
+check_ext = parser.parse_args().ext
 opt = option.parse(parser.parse_args().opt, is_train=False)
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
 opt = option.dict_to_nonedict(opt)
@@ -44,7 +46,8 @@ for test_loader in test_loaders:
 
     alpha_psnr = []
     alpha_ssim = []
-    for coef in np.arange(0.0, 1.01, stride):
+    check_range = 1.01 if not check_ext else 2.01
+    for coef in np.arange(0.0, check_range, stride):
         print('setting coef to {:.2f}'.format(coef))
 
         interp_dict = model_dict.copy()
@@ -122,8 +125,8 @@ for test_loader in test_loaders:
     best_alpha_psnr = np.argmax(alpha_psnr) * 0.1
     best_alpha_ssim = np.argmax(alpha_ssim) * 0.1
 
-    summ_log.write('{}\tPSNR {:.2f}-{:.3f}\tSSIM{:.2f}-{:.3f}\n'.format(test_set_name,
-                                                             best_alpha_psnr, max(alpha_psnr),
-                                                             best_alpha_ssim, max(alpha_ssim)))
+    summ_log.write('{}\tPSNR {:.2f}-{:.3f}\tSSIM {:.2f}-{:.3f}\n'.format(test_set_name,
+                                                                         best_alpha_psnr, max(alpha_psnr),
+                                                                         best_alpha_ssim, max(alpha_ssim)))
     summ_log.flush()
 summ_log.close()

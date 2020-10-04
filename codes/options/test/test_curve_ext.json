@@ -1,0 +1,45 @@
+{
+  "name": "curve_test_interpolate"
+  , "suffix": null
+  , "model": "sr"
+  , "crop_size": 0  // 0 for image restoration | upscale (x2,3,4) for SR
+  , "gpu_ids": [1]
+
+  , "interpolate_stride": 0.1 // 0.1, 0.05, 0.01, ... for modulation testing
+
+  , "datasets": {
+    "test_60": { // the 1st test dataset
+      "name": "sigma_60"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy60/" // path for LR images
+    },
+    "test_70": { // the 1st test dataset
+      "name": "sigma_70"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy70/" // path for LR images
+    },
+    "test_75": { // the 1st test dataset
+      "name": "sigma_75"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../datasets/CBSD68/original_png/" // path for HR images
+      , "dataroot_LR": "../datasets/CBSD68/noisy75/" // path for LR images
+    }
+}
+
+  , "path": {
+    "root": "../"
+    , "pretrain_model_G": "../experiments/pretrained_models/noise15to75.pth"
+  }
+
+  , "network_G": {
+    "which_model_G": "adaptive_resnet"
+    , "norm_type": "adafm" // basic | adafm | null | instance | batch
+    , "nf": 64
+    , "nb": 16
+    , "in_nc": 3
+    , "out_nc": 3
+    , "adafm_ksize": 1 // 1 | 3 | 5 | 7
+  }
+}
