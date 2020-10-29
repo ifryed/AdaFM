@@ -5,6 +5,7 @@ import random
 import logging
 
 import torch
+import wandb
 
 import options.options as option
 from utils import util
@@ -16,9 +17,12 @@ def main():
     # options
     parser = argparse.ArgumentParser()
     parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
+    parser.add_argument('-name', type=str, required=True, help='Name for WandB run')
     opt = option.parse(parser.parse_args().opt, is_train=True)
+    wandb_name = parser.parse_args().name
     opt = option.dict_to_nonedict(opt)  # Convert to NoneDict, which return None for missing key.
 
+    wandb.init(project="kpop", name=wandb_name)
     # train from scratch OR resume training
     if opt['path']['resume_state']:  # resuming training
         resume_state = torch.load(opt['path']['resume_state'])
@@ -115,6 +119,9 @@ def main():
                     if opt['use_tb_logger'] and 'debug' not in opt['name']:
                         tb_logger.add_scalar(k, v, current_step)
                 logger.info(message)
+            wandb.log({"LR": model.get_current_learning_rate(),
+                       "loss": model.log_dict['l_pix'],
+                       })
 
             # validation
             if current_step % opt['train']['val_freq'] == 0:
@@ -134,7 +141,7 @@ def main():
                     gt_img = util.tensor2img(visuals['HR'])  # uint8
 
                     # Save SR images for reference
-                    save_img_path = os.path.join(img_dir, '{:s}_{:d}.png'.format(\
+                    save_img_path = os.path.join(img_dir, '{:s}_{:d}.png'.format( \
                         img_name, current_step))
                     util.save_img(sr_img, save_img_path)
 
@@ -150,6 +157,8 @@ def main():
                 avg_psnr = avg_psnr / idx
 
                 # log
+                wandb.log({"val loss": model.log_dict['l_pix'],
+                           "PSNR": avg_psnr})
                 logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr))
                 logger_val = logging.getLogger('val')  # validation logger
                 logger_val.info('<epoch:{:3d}, iter:{:8,d}> psnr: {:.4e}'.format(
