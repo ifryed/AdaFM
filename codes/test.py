@@ -3,17 +3,28 @@ import logging
 import time
 import argparse
 from collections import OrderedDict
+import copy
 from multiprocessing.spawn import freeze_support
+
+import torch
 
 import options.options as option
 import utils.util as util
 from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
 from models import create_model
+import matplotlib.pyplot as plt
+import numpy as np
 
 # options
 parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+parser.add_argument('-sigmas', type=int, nargs='+', default=[15, 75], help='Test sigmas')
+parser.add_argument('-b', type=int, nargs='+', default=[15, 75], help='Trained sigmas')
+
+sigmas = parser.parse_args().sigmas
+l_bound, u_bound = parser.parse_args().b
+
 opt = option.parse(parser.parse_args().opt, is_train=False)
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
 opt = option.dict_to_nonedict(opt)
@@ -23,8 +34,20 @@ logger = logging.getLogger('base')
 logger.info(option.dict2str(opt))
 # Create test dataset and dataloader
 test_loaders = []
-for phase, dataset_opt in sorted(opt['datasets'].items()):
-    test_set = create_dataset(dataset_opt)
+# for phase, dataset_opt in sorted(opt['datasets'].items()):
+#     test_set = create_dataset(dataset_opt)
+#     test_loader = create_dataloader(test_set, dataset_opt)
+#     logger.info('Number of test images in [{:s}]: {:d}'.format(dataset_opt['name'], len(test_set)))
+#     test_loaders.append(test_loader)
+dataset_opt = opt['datasets']['test']
+for sigma in sigmas:
+    dataset_opt['name'] = 'test_{}'.format(sigma)
+    dataset_opt['coef'] = (sigma - l_bound) / (u_bound - l_bound)
+    data_lr = dataset_opt['dataroot_LR']
+    old_fld = os.path.basename(data_lr)
+    new_fld = ''.join([x for x in old_fld if not x.isnumeric()]) + str(sigma)
+    dataset_opt['dataroot_LR'] = data_lr[:data_lr.rfind(os.path.basename(data_lr))] + new_fld
+    test_set = copy.deepcopy(create_dataset(dataset_opt))
     test_loader = create_dataloader(test_set, dataset_opt)
     logger.info('Number of test images in [{:s}]: {:d}'.format(dataset_opt['name'], len(test_set)))
     test_loaders.append(test_loader)
@@ -39,13 +62,24 @@ for test_loader in test_loaders:
     dataset_dir = os.path.join(opt['path']['results_root'], test_set_name)
     util.mkdir(dataset_dir)
 
+    model_dict = torch.load(opt['path']['pretrain_model_G'])
+    interp_dict = model_dict.copy()
+    for k, v in model_dict.items():
+        if k.find('transformer') >= 0:
+            interp_dict[k] = v * test_loader.dataset.opt['coef']
+    model.update(interp_dict)
+
     test_results = OrderedDict()
     test_results['psnr'] = []
     test_results['ssim'] = []
     test_results['psnr_y'] = []
     test_results['ssim_y'] = []
 
+    c = 0
     for data in test_loader:
+        c += 1
+        if c > 5:
+            break
         need_HR = False if test_loader.dataset.opt['dataroot_HR'] is None else True
 
         model.feed_data(data, need_HR=need_HR)
@@ -91,8 +125,8 @@ for test_loader in test_loaders:
                 ssim_y = util.calculate_ssim(sr_img_y * 255, gt_img_y * 255)
                 test_results['psnr_y'].append(psnr_y)
                 test_results['ssim_y'].append(ssim_y)
-                logger.info('{:20s} - PSNR: {:.6f} dB; SSIM: {:.6f}; PSNR_Y: {:.6f} dB; SSIM_Y: {:.6f}.'\
-                    .format(img_name, psnr, ssim, psnr_y, ssim_y))
+                # logger.info('{:20s} - PSNR: {:.6f} dB; SSIM: {:.6f}; PSNR_Y: {:.6f} dB; SSIM_Y: {:.6f}.' \
+                #             .format(img_name, psnr, ssim, psnr_y, ssim_y))
             else:
                 logger.info('{:20s} - PSNR: {:.6f} dB; SSIM: {:.6f}.'.format(img_name, psnr, ssim))
         else:
@@ -102,10 +136,10 @@ for test_loader in test_loaders:
         # Average PSNR/SSIM results
         ave_psnr = sum(test_results['psnr']) / len(test_results['psnr'])
         ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])
-        logger.info('----Average PSNR/SSIM results for {}----\n\tPSNR: {:.6f} dB; SSIM: {:.6f}\n'\
-                .format(test_set_name, ave_psnr, ave_ssim))
+        logger.info('----Average PSNR/SSIM results for {}----\n\tPSNR: {:.6f} dB; SSIM: {:.6f}\n' \
+                    .format(test_set_name, ave_psnr, ave_ssim))
         if test_results['psnr_y'] and test_results['ssim_y']:
             ave_psnr_y = sum(test_results['psnr_y']) / len(test_results['psnr_y'])
             ave_ssim_y = sum(test_results['ssim_y']) / len(test_results['ssim_y'])
-            logger.info('----Y channel, average PSNR/SSIM----\n\tPSNR_Y: {:.6f} dB; SSIM_Y: {:.6f}\n'\
-                .format(ave_psnr_y, ave_ssim_y))
+            logger.info('----Y channel, average PSNR/SSIM----\n\tPSNR_Y: {:.6f} dB; SSIM_Y: {:.6f}\n' \
+                        .format(ave_psnr_y, ave_ssim_y))

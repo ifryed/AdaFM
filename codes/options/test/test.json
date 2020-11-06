@@ -1,5 +1,5 @@
 {
-  "name": "modulation_noise45_adafmnet_noise15to75"
+  "name": "test_best_15"
   , "suffix": null
   , "model": "sr"
   , "crop_size": 0  // 0 for image restoration | upscale (x2,3,4) for SR
@@ -14,21 +14,22 @@
 //      , "dataroot_HR": "../datasets/val_CBSD68/CBSD68" // path for HR images
 //      , "dataroot_LR": "../datasets/val_CBSD68/CBSD68_noise75" // path for LR images
 //    },
-     "test_2": { // the 2nd test dataset
-      "name": "personal_images"
-      , "mode": "LR"
-      , "dataroot_LR": "../datasets/personal_images/personal_images_noise45"
+     "test": {
+      "name": "val_CBSD68"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../../l2lTunaDenoising\\dataset\\test/clean" // path for HR images
+      , "dataroot_LR": "../../l2lTunaDenoising\\dataset\\test/n_15" // path for LR images
     }
   }
 
   , "path": {
     "root": "../"
-    , "pretrain_model_G": "../experiments/pretrained_models/noise15to75.pth"
+    , "pretrain_model_G": "../experiments/latest_G.pth"
   }
 
   , "network_G": {
     "which_model_G": "adaptive_resnet"
-    , "norm_type": "adafm" // basic | adafm | null | instance | batch
+    , "norm_type": "basic" // basic | adafm | null | instance | batch
     , "nf": 64
     , "nb": 16
     , "in_nc": 3

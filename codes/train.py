@@ -157,8 +157,8 @@ def main():
                 avg_psnr = avg_psnr / idx
 
                 # log
-                wandb.log({"val loss": model.log_dict['l_pix'],
-                           "PSNR": avg_psnr})
+                wandb.log({"PSNR": avg_psnr})
+
                 logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr))
                 logger_val = logging.getLogger('val')  # validation logger
                 logger_val.info('<epoch:{:3d}, iter:{:8,d}> psnr: {:.4e}'.format(
