@@ -4,14 +4,14 @@
   , "model":"sr"
   , "finetune_norm": false  // whether finetune the adafm layers
   , "crop_size": 0 // 0 for image restoration | upscale (x2, x3, x4) for SR
-  , "gpu_ids": [1] // gpu id list
+  , "gpu_ids": [] // gpu id list
 
   , "datasets": {
     "train": {
       "name": "DIV2K"
       , "mode": "LRHR"
-      , "dataroot_HR": "../datasets/DIV2K800/DIV2K800_sub/" // path for HR images
-      , "dataroot_LR": "../datasets/DIV2K_train/noise_15/" // path for LR images
+      , "dataroot_HR": "../../l2lTunaDenoising\\dataset\\train/clean" // path for HR images
+      , "dataroot_LR": "../../l2lTunaDenoising\\dataset\\train/n_15" // path for LR images
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
@@ -23,15 +23,15 @@
     , "val": {
       "name": "val_CBSD68"
       , "mode": "LRHR"
-      , "dataroot_HR":  "../datasets/DIV2K800_valid/DIV2K800_sub" // path for HR images
-      , "dataroot_LR":  "../datasets/DIV2K_valid/noise_15/" // path for LR images
+      , "dataroot_HR": "../../l2lTunaDenoising\\dataset\\test/clean" // path for HR images
+      , "dataroot_LR": "../../l2lTunaDenoising\\dataset\\test/n_15" // path for LR images
     }
   }
 
   , "path": {
     "root": "../" // the path root for the current experiment
-    , "resume_state": "../experiments/basicmodel_noise15_DIV2K/training_state/425000.state"
-    , "pretrain_model_G": "../experiments/basicmodel_noise15_DIV2K/models/425000_G.pth" 
+//    , "resume_state": "../experiments/basicmodel_noise15_DIV2K/training_state/425000.state"
+//    , "pretrain_model_G": "../experiments/basicmodel_noise15_DIV2K/models/425000_G.pth"
   }
 
   , "network_G": {
