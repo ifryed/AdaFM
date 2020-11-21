@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
 parser.add_argument('-sigmas', type=int, nargs='+', default=[15, 75], help='Test sigmas')
 parser.add_argument('-b', type=int, nargs='+', default=[15, 75], help='Trained sigmas')
+parser.add_argument('-best', type=bool, default=False,action="store_true")
 
 sigmas = parser.parse_args().sigmas
 l_bound, u_bound = parser.parse_args().b
@@ -57,14 +58,16 @@ model = create_model(opt)
 
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
-    logger.info('\nTesting [{:s}]...'.format(test_set_name))
+    # logger.info('\nTesting [{:s}]...'.format(test_set_name))
     test_start_time = time.time()
     dataset_dir = os.path.join(opt['path']['results_root'], test_set_name)
     util.mkdir(dataset_dir)
 
     model_dict = torch.load(opt['path']['pretrain_model_G'])
     base_alpha = test_loader.dataset.opt['coef']
-    alpha_lst = np.unique([x + base_alpha for x in [-.5, -.25, 0, .25, .5]])
+    alpha_lst = [0]
+    if parser.parse_args().best:
+        alpha_lst = np.unique([x + base_alpha for x in [-.05, -.025, 0, .025, .05]])
     best_psnr = -1
     best_ssim = -1
     for alpha in alpha_lst:
@@ -134,13 +137,14 @@ for test_loader in test_loaders:
                 logger.info(img_name)
 
         if need_HR:  # metrics
-            best_psnr = np.max(best_psnr, sum(test_results['psnr']) / len(test_results['psnr']))
-            best_ssim = np.max(best_ssim, sum(test_results['ssim']) / len(test_results['ssim']))
+            best_psnr = np.max([best_psnr, sum(test_results['psnr']) / len(test_results['psnr'])])
+            best_ssim = np.max([best_ssim, sum(test_results['ssim']) / len(test_results['ssim'])])
 
     if need_HR:
         # Average PSNR/SSIM results
-        logger.info('----Average PSNR/SSIM results for {}----\n\tPSNR: {:.6f} dB; SSIM: {:.6f}\n' \
-                    .format(test_set_name, best_psnr, best_ssim))
+        # logger.info('----Average PSNR/SSIM results for {}----\n\tPSNR: {:.6f} dB; SSIM: {:.6f}\n' \
+        #            .format(test_set_name, best_psnr, best_ssim))
+        print(test_set_name, ":", best_psnr)
 
         # if test_results['psnr_y'] and test_results['ssim_y']:
         # ave_psnr_y = sum(test_results['psnr_y']) / len(test_results['psnr_y'])
