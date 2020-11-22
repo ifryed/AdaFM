@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
 parser.add_argument('-sigmas', type=int, nargs='+', default=[15, 75], help='Test sigmas')
 parser.add_argument('-b', type=int, nargs='+', default=[15, 75], help='Trained sigmas')
-parser.add_argument('-best', type=bool, default=False,action="store_true")
+parser.add_argument('-best', default=False,action="store_true")
 
 sigmas = parser.parse_args().sigmas
 l_bound, u_bound = parser.parse_args().b
