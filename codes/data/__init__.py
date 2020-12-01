@@ -19,7 +19,7 @@ def create_dataloader(dataset, dataset_opt):
             dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
 
 
-def create_dataset(dataset_opt):
+def create_dataset(dataset_opt, gray=False):
     '''create dataset'''
     mode = dataset_opt['mode']
     if mode == 'LR':
@@ -30,7 +30,7 @@ def create_dataset(dataset_opt):
         from data.KERMOD_dataset import KERMODDataset as D
     else:
         raise NotImplementedError('Dataset [{:s}] is not recognized.'.format(mode))
-    dataset = D(dataset_opt)
+    dataset = D(dataset_opt, gray)
     logger = logging.getLogger('base')
     logger.info('Dataset [{:s} - {:s}] is created.'.format(dataset.__class__.__name__,
                                                            dataset_opt['name']))
