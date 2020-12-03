@@ -41,6 +41,7 @@ test_loaders = []
 #     logger.info('Number of test images in [{:s}]: {:d}'.format(dataset_opt['name'], len(test_set)))
 #     test_loaders.append(test_loader)
 dataset_opt = opt['datasets']['test']
+gray = opt['gray']
 for sigma in sigmas:
     dataset_opt['name'] = 'test_{}'.format(sigma)
     dataset_opt['coef'] = (sigma - l_bound) / (u_bound - l_bound)
@@ -48,7 +49,7 @@ for sigma in sigmas:
     old_fld = os.path.basename(data_lr)
     new_fld = ''.join([x for x in old_fld if not x.isnumeric()]) + str(sigma)
     dataset_opt['dataroot_LR'] = data_lr[:data_lr.rfind(os.path.basename(data_lr))] + new_fld
-    test_set = copy.deepcopy(create_dataset(dataset_opt))
+    test_set = copy.deepcopy(create_dataset(dataset_opt,gray))
     test_loader = create_dataloader(test_set, dataset_opt)
     logger.info('Number of test images in [{:s}]: {:d}'.format(dataset_opt['name'], len(test_set)))
     test_loaders.append(test_loader)
