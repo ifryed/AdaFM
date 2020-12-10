@@ -7,7 +7,7 @@ import cv2
 import logging
 
 import torch
-from scipy.ndimage import imread
+from imageio import imread
 
 IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP']
 
