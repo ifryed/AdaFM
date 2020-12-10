@@ -13,14 +13,13 @@ class LRHRDataset(data.Dataset):
     The pair is ensured by 'sorted' function, so please check the name convention.
     '''
 
-    def __init__(self, opt,gray=False):
+    def __init__(self, opt):
         super(LRHRDataset, self).__init__()
         self.opt = opt
         self.paths_LR = None
         self.paths_HR = None
         self.LR_env = None  # environment for lmdb
         self.HR_env = None
-        self.gray = gray
 
         self.HR_env, self.paths_HR = util.get_image_paths(opt['data_type'], opt['dataroot_HR'])
         self.LR_env, self.paths_LR = util.get_image_paths(opt['data_type'], opt['dataroot_LR'])
@@ -37,11 +36,11 @@ class LRHRDataset(data.Dataset):
 
         # get HR image
         HR_path = self.paths_HR[index]
-        img_HR = util.read_img(self.HR_env, HR_path,self.gray)
+        img_HR = util.read_img(self.HR_env, HR_path)
 
         # get LR image
         LR_path = self.paths_LR[index]
-        img_LR = util.read_img(self.LR_env, LR_path,self.gray)
+        img_LR = util.read_img(self.LR_env, LR_path)
 
         # modcrop in the validation / test phase
         if self.opt['phase'] != 'train':

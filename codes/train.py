@@ -14,6 +14,7 @@ from models import create_model
 
 
 def main():
+    # os.environ['WANDB_MODE'] = 'dryrun'
     # options
     parser = argparse.ArgumentParser()
     parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
@@ -21,7 +22,6 @@ def main():
     opt = option.parse(parser.parse_args().opt, is_train=True)
     wandb_name = parser.parse_args().name
     opt = option.dict_to_nonedict(opt)  # Convert to NoneDict, which return None for missing key.
-    gray = opt['gray']
 
     wandb.init(project="kpop", name=wandb_name)
     # train from scratch OR resume training
@@ -62,7 +62,7 @@ def main():
     # create train and val dataloader
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
-            train_set = create_dataset(dataset_opt,gray)
+            train_set = create_dataset(dataset_opt)
             train_size = int(math.ceil(len(train_set) / dataset_opt['batch_size']))
             logger.info('Number of train images: {:,d}, iters: {:,d}'.format(
                 len(train_set), train_size))
@@ -72,7 +72,7 @@ def main():
                 total_epochs, total_iters))
             train_loader = create_dataloader(train_set, dataset_opt)
         elif phase == 'val':
-            val_set = create_dataset(dataset_opt,gray)
+            val_set = create_dataset(dataset_opt)
             val_loader = create_dataloader(val_set, dataset_opt)
             logger.info('Number of val images in [{:s}]: {:d}'.format(dataset_opt['name'],
                                                                       len(val_set)))
